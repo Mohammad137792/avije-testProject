@@ -82,6 +82,7 @@ const checkModel = (response: any) => {
 };
 watch(model, (newVal) => {
   checkModel(model);
+  localStorage.setItem("filters", JSON.stringify({ ...route.query, ...queryModel }));
 });
 </script>
 <style lang="scss" scoped>

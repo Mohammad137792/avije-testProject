@@ -14,14 +14,9 @@
 <script lang="ts" setup>
 const {query} = useRoute()
 const filterArray  = reactive(query)
-const result= computed(()=>{
-  return filterArray
-})
-if(process.client){
 
-  watch(result, ()=>{
-  }, {deep: true, immediate:true})
-}
+const filters= localStorage.getItem("filters");
+
 </script>
 
 <style lang="scss" scoped>
