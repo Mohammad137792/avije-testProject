@@ -1,23 +1,51 @@
 <template>
   <div>
     <div class="chipsPlate">
-
+<div class="chipsPlate__deleteChips">
+<FiltersFilterChipsChipset :data="{name:'delete all'}"/>
+</div>
+<div class="chipsPlate__deleteChips" v-for="i in filterArray">
+<FiltersFilterChipsChipset :data="i"/>
+</div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const {query} = useRoute()
+const filterArray  = reactive(query)
+console.log('filterArray',filterArray);
+const result= computed(()=>{
+  console.log('filterArray',filterArray);
+  return filterArray
+  
+
+})
+if(process.client){
+
+  watch(result, ()=>{
+    console.log('filterArrayfilterArray',filterArray);
+  }, {deep: true, immediate:true})
+}
+</script>
 
 <style lang="scss" scoped>
 .chipsPlate{
-    width: 95%;
+  padding: 16px;
+    width: 90%;
     min-height: 30px;
     height: auto;
     margin-top: 16px;
     margin-bottom: 8px;
+    margin-right: 45px;
     display: flex;
     justify-content: center;
-    background-color: red;
+    border-radius: 8px;
+    border: 1px red solid;
+    background-color: rgba(122, 60, 60, 0.308);
     align-items: center;
+    &__deleteChips{
+margin:8px
+    }
 }
 </style>

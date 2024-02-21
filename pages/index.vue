@@ -1,16 +1,22 @@
 <script lang="ts" setup>
 import data from "@/public/data";
-const router = useRouter();
-const route = useRoute();
-const model = reactive<any>({});
-console.log("data", data);
-const checkModel = (response :any) => {
-  model[response.name] = Array.isArray(response.filter)
-    ? JSON.stringify(response.filter)
-    : response.filter;
-  console.log("model", model);
-  router.push({ path: route.path, query: { ...route.query, ...model } });
+const dataMapper = (arr: any) => {
+  let result = <any>[];
+  arr.map((el: any, ind: any) => {
+    if (!el.parent && !el.children) result.push(el);
+    if (el.children) {
+      el.children.map((i: any, index: number) => {
+        const res = (el.children[index] = arr.find((j: any) => j?.name === i));
+        if (el.children[index]) dataMapper(el.children);
+        return res;
+      });
+
+      result.push(el);
+    }
+  });
+  return result;
 };
+const mappedData = <any>dataMapper(data);
 </script>
 
 <template>
@@ -18,14 +24,13 @@ const checkModel = (response :any) => {
     <div class="page">
       <div class="filter">
         <div class="filter__title"><h1>Avijeh Filter Project</h1></div>
-        <div v-for="(i, index) in data" :key="index" class="filter__list">
+        <div v-for="(i, index) in mappedData" :key="index" class="filter__list">
           <div>
-            <filtersCard :data="i" @changeModel="checkModel" />
+            <filtersCard :data="i"  />
           </div>
         </div>
-        <div >
-<LazyFiltersFilterChips/>
-
+        <div>
+          <LazyFiltersFilterChips />
         </div>
       </div>
     </div>

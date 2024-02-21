@@ -5,23 +5,26 @@
         <div class="card__inner__label">{{ data.label }}</div>
         <div
           class="card__inner__options"
-          v-if="data.type === 'checkbox-group' || data.type === 'checkbox' "
-          
+          v-if="data.type === 'checkbox-group' || data.type === 'checkbox'"
           v-for="(i, index) in data.options">
-          <input type="checkbox" :id="index" :name="i.title" :value="i.value"   v-model='filter'/>
-          <label :for="index" class="card__inner__options__title">{{
+          <input
+            type="checkbox"
+            :id:any="index"
+            :name="(i.name)"
+            :value="i.value"
+            v-model="filter" />
+          <label :for:any="index" class="card__inner__options__title">{{
             i.title
           }}</label
           ><br />
         </div>
         <div
-          v-else-if="data.type === 'dropdown'"
+          v-else-if="data.type === 'dropdown' && data.name"
           class="card__inner__options">
-          <select :name="data.name" :id="data.name" v-model='filter'>
+          <select :name="data?.name" :id="data?.name" v-model="filter">
             <option
               v-for="(i, index) in data.options"
-              
-              :id="index"
+              :id:any="index"
               :value="i.value">
               {{ i.title }}
             </option>
@@ -29,13 +32,28 @@
         </div>
         <div v-else class="card__inner__options">
           <input
-          v-model='filter'
+            v-model="filter"
             :type="data.type"
-             :class="[data.type ==='range'? 'inputStyle' : '']"
+            :class="[data.type === 'range' ? 'inputStyle' : '']"
             id="points"
             :name="data.label"
-            :min='data.type === "range" ?data.options[0].value :0'
-            :max='data.type === "range" ?data.options[1].value :0' 
+            :min="data.type === 'range' ? data.options?.[0].value : 0"
+            :max="data.type === 'range' ? data.options?.[1].value : 0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="children" v-if="data.children && data.children.length > 0">
+      <div
+        v-for="(i, index) in data.children"
+        :key="index"
+        class="filter__list">
+        <div>
+          <filtersCard
+            :data="(i as filterItemDTO)"
+            @changeModel="checkModel"
+            v-if="(i.name ) &&  Object.keys(queryModel).includes(i?.parent ) && queryModel[i.parent]=== i.name" 
+
             />
         </div>
       </div>
@@ -43,23 +61,61 @@
   </div>
 </template>
 <script setup lang="ts">
- import type filterItemDTO from '~/types/filter/filterItem'
-const {data} = defineProps<{ data: filterItemDTO }>();
-const emit = defineEmits (['changeModel'])
-const filter = ref([])
+import type filterItemDTO from "~/types/filter/filterItem";
+const { data } = defineProps<{ data: filterItemDTO }>();
+const route = useRoute();
+const router = useRouter();
+const emit = defineEmits(["changeModel"]);
+const filter = ref([]);
 const model = reactive({
   name: data.name,
   type: data.type,
   label: data.label,
-  filter: filter
-})
-watch(model, (newVal)=>{
-emit('changeModel',model)
-})
+  filter: filter,
+});
+const queryModel = reactive<any>({});
+
+watch(
+  queryModel,
+  (newVal) => {
+    if (process.client) console.log("newVal", newVal);
+  },
+  { deep: true, immediate: true }
+);
+const checkModel = (response: any) => {
+  queryModel[response?.name] = Array.isArray(response.filter)
+    ? (response.filter.length<2 ? (response.filter[0]) :JSON.stringify( response.filter  ))
+    : response.filter;
+  router.push({ path: route.path, query: { ...route.query, ...queryModel } });
+};
+watch(model, (newVal) => {
+  checkModel(model);
+});
 </script>
 <style lang="scss" scoped>
-.inputStyle{
-  width: 1000px ;
+.children {
+  margin-right: 40px;
+}
+.filter {
+  background-color: #e6ebe7;
+  border-radius: 16px;
+  border: 1px solid #bed1c2;
+  height: 95%;
+  padding: 16px;
+  width: 95vw;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, #bed1c2 0px -2px 6px 0px inset;
+  &__title {
+    font-size: 18px;
+    font-weight: 400;
+    direction: ltr;
+  }
+  &__list {
+    overflow-y: hidden;
+  }
+}
+.inputStyle {
+  width: 1000px;
 }
 .card {
   width: 95%;
