@@ -14,17 +14,12 @@
 <script lang="ts" setup>
 const {query} = useRoute()
 const filterArray  = reactive(query)
-console.log('filterArray',filterArray);
 const result= computed(()=>{
-  console.log('filterArray',filterArray);
   return filterArray
-  
-
 })
 if(process.client){
 
   watch(result, ()=>{
-    console.log('filterArrayfilterArray',filterArray);
   }, {deep: true, immediate:true})
 }
 </script>

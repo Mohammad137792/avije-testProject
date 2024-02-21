@@ -74,14 +74,6 @@ const model = reactive({
   filter: filter,
 });
 const queryModel = reactive<any>({});
-
-watch(
-  queryModel,
-  (newVal) => {
-    if (process.client) console.log("newVal", newVal);
-  },
-  { deep: true, immediate: true }
-);
 const checkModel = (response: any) => {
   queryModel[response?.name] = Array.isArray(response.filter)
     ? (response.filter.length<2 ? (response.filter[0]) :JSON.stringify( response.filter  ))
